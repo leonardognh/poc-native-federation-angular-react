@@ -1,0 +1,1 @@
+# poc-native-federation-angular-react
