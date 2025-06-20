@@ -1,4 +1,3 @@
-// src/app/components/react-mfe-wrapper/react-mfe-wrapper.component.ts
 import {
   Component,
   ElementRef,
