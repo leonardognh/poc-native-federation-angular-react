@@ -1,0 +1,15 @@
+{
+  "name": "poc-native-federation-angular-react",
+  "version": "1.0.0",
+  "scripts": {
+    "install": "concurrently \"npm install --prefix angular-shell\" \"npm install --prefix mfe-react\" \"npm install --prefix mfe-angular\"",
+    "start": "concurrently \"npm start --prefix angular-shell\" \"npm start --prefix mfe-react\" \"npm start --prefix mfe-angular\"",
+    "build": "concurrently \"npm run build --prefix angular-shell\" \"npm run build --prefix mfe-react\" \"npm run build --prefix mfe-angular\"",
+    "serve": "concurrently \"npm run serve --prefix angular-shell\" \"npm run serve --prefix mfe-react\" \"npm run serve --prefix mfe-angular\"",
+    "test": "concurrently \"npm test --prefix angular-shell\" \"npm test --prefix mfe-react\" \"npm test --prefix mfe-angular\""
+  },
+  "private": true,
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

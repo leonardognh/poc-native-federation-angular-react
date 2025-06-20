@@ -10,7 +10,7 @@ module.exports = {
   },
 
   devServer: {
-    port: 3000, // MANTENHA A PORTA 3000 se está funcionando
+    port: 3000,
     hot: true,
     allowedHosts: "all",
     headers: {

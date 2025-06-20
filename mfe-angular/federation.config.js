@@ -5,9 +5,10 @@ const {
 
 module.exports = withNativeFederation({
   name: "mfeAngular",
+  fileName: "remoteEntry.json",
 
   exposes: {
-    "./Component": "./src/app/app.ts",
+    "./routes": "./src/app/app.routes.ts",
   },
 
   shared: {

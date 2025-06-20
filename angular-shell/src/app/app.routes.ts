@@ -16,7 +16,7 @@ export const routes: Routes = [
   {
     path: 'angular',
     loadChildren: () =>
-      loadRemoteModule('mfeAngular', './Component').then((m) => m.App),
+      loadRemoteModule('mfeAngular', './routes').then((m) => m.routes),
   },
   {
     path: 'react',

@@ -146,34 +146,24 @@ export class ReactMfeWrapperComponent implements OnInit, OnDestroy {
       this.isLoading = true;
       this.error = null;
 
-      console.log('🔍 Carregando React MFE com script dinâmico...');
-
-      // Carrega o remoteEntry.js dinamicamente
       await this.loadScript('http://localhost:3000/remoteEntry.js');
 
-      // Aguarda o Module Federation estar disponível
       await this.waitForGlobal('mfeReact', 5000);
       this.globalAvailable = 'Sim';
 
-      // Acessa o container do Module Federation
       const container = window.mfeReact;
       if (!container) {
         throw new Error('Container mfeReact não encontrado no window');
       }
 
-      console.log('📦 Container encontrado:', container);
-
-      // Tenta inicializar o container (pode não ser necessário)
       if (container.init && typeof container.init === 'function') {
         try {
           await container.init({});
-          console.log('🔧 Container inicializado');
         } catch (initError) {
           console.log('⚠️ Erro na inicialização (continuando):', initError);
         }
       }
 
-      // Obtém o módulo exposto
       if (!container.get || typeof container.get !== 'function') {
         throw new Error('Método container.get não encontrado');
       }
@@ -181,27 +171,18 @@ export class ReactMfeWrapperComponent implements OnInit, OnDestroy {
       const factory = await container.get('./Component');
       const reactModule = factory();
 
-      console.log('📦 Módulo carregado:', reactModule);
-
       if (reactModule?.mount && this.reactContainer) {
-        console.log('🚀 Montando React MFE...');
         this.unmountReact = reactModule.mount(
           this.reactContainer.nativeElement
         );
-        console.log('✅ React MFE montado com sucesso!');
       } else if (reactModule?.default?.mount) {
-        console.log('🚀 Montando React MFE (via default)...');
         this.unmountReact = reactModule.default.mount(
           this.reactContainer.nativeElement
         );
-        console.log('✅ React MFE montado com sucesso!');
       } else if (reactModule?.default) {
-        // Tenta montar diretamente o default
-        console.log('🚀 Tentando montar default diretamente...');
         this.unmountReact = reactModule.default(
           this.reactContainer.nativeElement
         );
-        console.log('✅ React MFE montado (default direto)!');
       } else {
         console.error(
           '❌ Estrutura do módulo:',
@@ -221,7 +202,6 @@ export class ReactMfeWrapperComponent implements OnInit, OnDestroy {
 
   private loadScript(src: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      // Remove script anterior se existir
       const existingScript = document.querySelector(`script[src="${src}"]`);
       if (existingScript) {
         existingScript.remove();
@@ -233,7 +213,6 @@ export class ReactMfeWrapperComponent implements OnInit, OnDestroy {
       script.crossOrigin = 'anonymous';
 
       script.onload = () => {
-        console.log('✅ Script carregado:', src);
         resolve();
       };
 
@@ -252,7 +231,6 @@ export class ReactMfeWrapperComponent implements OnInit, OnDestroy {
 
       const check = () => {
         if (window[globalName as keyof Window]) {
-          console.log(`✅ Global ${globalName} encontrado`);
           resolve();
         } else if (Date.now() - startTime > timeout) {
           console.error(`❌ Timeout aguardando ${globalName}`);
@@ -267,7 +245,6 @@ export class ReactMfeWrapperComponent implements OnInit, OnDestroy {
   }
 
   retryLoad(): void {
-    // Limpa container antes de tentar novamente
     if (this.reactContainer) {
       this.reactContainer.nativeElement.innerHTML = '';
     }
