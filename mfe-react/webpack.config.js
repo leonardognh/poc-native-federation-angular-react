@@ -1,5 +1,6 @@
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const isStandalone = process.env.STANDALONE === "true";
 
 module.exports = {
   mode: "development",
@@ -62,18 +63,19 @@ module.exports = {
       exposes: {
         "./Component": "./src/index.tsx",
       },
-      shared: {
-        react: {
-          singleton: true,
-          requiredVersion: "^18.0.0",
-          eager: false,
-        },
-        "react-dom": {
-          singleton: true,
-          requiredVersion: "^18.0.0",
-          eager: false,
-        },
-      },
+      // comentar quando executar sozinho
+      // shared: {
+      //   react: {
+      //     singleton: true,
+      //     requiredVersion: "^18.0.0",
+      //     eager: false,
+      //   },
+      //   "react-dom": {
+      //     singleton: true,
+      //     requiredVersion: "^18.0.0",
+      //     eager: false,
+      //   },
+      // },
     }),
     new HtmlWebpackPlugin({
       template: "./public/index.html",

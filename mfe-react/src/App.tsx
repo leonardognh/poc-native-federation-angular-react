@@ -1,5 +1,4 @@
 import React, { Suspense } from "react";
-import "./App.css";
 import Home from "./pages/Home";
 
 const App: React.FC = () => {
