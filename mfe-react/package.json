@@ -1,61 +1,35 @@
 {
   "name": "mfe-react",
-  "version": "0.1.0",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "vmf": "npm run build && vite preview --port 3000"
+  },
   "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.126",
+    "@originjs/vite-plugin-federation": "^1.4.1",
+    "@tailwindcss/vite": "^4.1.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^6.30.1",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production",
-    "serve": "npx serve dist -s -p 4200",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
-    "@module-federation/enhanced": "^0.2.6",
-    "@softarc/native-federation": "^3.2.0",
-    "@softarc/native-federation-esbuild": "^3.2.0",
-    "@softarc/sheriff-core": "^0.18.1",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@typescript-eslint/eslint-plugin": "^8.34.1",
-    "css-loader": "^6.11.0",
+    "@eslint/js": "^9.25.0",
+    "@module-federation/vite": "^1.5.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "html-webpack-plugin": "^5.6.3",
-    "style-loader": "^3.3.4",
-    "ts-loader": "^9.5.2",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.2"
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5",
+    "vite-plugin-federation": "^0.0.1"
   }
 }

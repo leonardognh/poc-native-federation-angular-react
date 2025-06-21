@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 
 declare global {
   interface Window {
-    mfeReact?: any;
+    System: any;
   }
 }
 
@@ -17,236 +17,60 @@ declare global {
   selector: 'app-react-mfe-wrapper',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div #reactContainer class="react-mfe-container">
-      <div class="loading" *ngIf="isLoading">
-        <div class="spinner"></div>
-        <p>Carregando React MFE...</p>
-        <small>Método: {{ loadMethod }}</small>
-      </div>
-      <div class="error" *ngIf="error">
-        <h4>❌ Erro ao carregar MFE</h4>
-        <p>{{ error }}</p>
-        <div class="debug-info">
-          <p><strong>Método tentado:</strong> {{ loadMethod }}</p>
-          <p><strong>Global disponível:</strong> {{ globalAvailable }}</p>
-        </div>
-        <button (click)="retryLoad()" class="retry-btn">
-          🔄 Tentar Novamente
-        </button>
-      </div>
-      <div class="success" *ngIf="!isLoading && !error">
-        ✅ React MFE carregado com sucesso!
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .react-mfe-container {
-        width: 100%;
-        min-height: 400px;
-        position: relative;
-        border: 2px dashed #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
-      }
-      .loading,
-      .error {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 300px;
-        text-align: center;
-      }
-      .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 16px;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      .error {
-        color: #e74c3c;
-      }
-      .debug-info {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 4px;
-        margin: 1rem 0;
-        border-left: 4px solid #dc3545;
-      }
-      .debug-info p {
-        margin: 0.5rem 0;
-        font-size: 0.9rem;
-      }
-      .retry-btn {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin: 5px;
-        font-size: 0.9rem;
-      }
-      .retry-btn:hover {
-        background: #2980b9;
-      }
-      .retry-btn.secondary {
-        background: #95a5a6;
-      }
-      .retry-btn.secondary:hover {
-        background: #7f8c8d;
-      }
-      .success {
-        text-align: center;
-        color: #27ae60;
-        font-weight: bold;
-        padding: 1rem;
-      }
-    `,
-  ],
+  template: ` <div #reactContainer id="root"></div> `,
+  styles: [],
 })
 export class ReactMfeWrapperComponent implements OnInit, OnDestroy {
   @ViewChild('reactContainer', { static: true })
   reactContainer!: ElementRef<HTMLDivElement>;
 
-  private unmountReact?: () => void;
-  isLoading = true;
-  error: string | null = null;
-  loadMethod = '';
-  globalAvailable = 'Verificando...';
+  private systemScriptEl?: HTMLScriptElement;
+  private mfeScriptEl?: HTMLScriptElement;
 
   ngOnInit(): void {
     this.loadReactMfe();
   }
 
   ngOnDestroy(): void {
-    if (this.unmountReact) {
-      this.unmountReact();
-    }
+    this.systemScriptEl?.remove();
+    this.mfeScriptEl?.remove();
   }
 
   private async loadReactMfe(): Promise<void> {
-    this.loadMethod = 'Script dinâmico';
-
     try {
-      this.isLoading = true;
-      this.error = null;
-
-      await this.loadScript('http://localhost:3000/remoteEntry.js');
-
-      await this.waitForGlobal('mfeReact', 5000);
-      this.globalAvailable = 'Sim';
-
-      const container = window.mfeReact;
-      if (!container) {
-        throw new Error('Container mfeReact não encontrado no window');
+      if (!window.System) {
+        this.systemScriptEl = await this.loadScript(
+          'https://cdn.jsdelivr.net/npm/systemjs/dist/system.min.js'
+        );
       }
 
-      if (container.init && typeof container.init === 'function') {
-        try {
-          await container.init({});
-        } catch (initError) {
-          console.log('⚠️ Erro na inicialização (continuando):', initError);
-        }
-      }
+      this.mfeScriptEl = await this.loadScript(
+        'http://localhost:3000/remoteEntry.js'
+      );
 
-      if (!container.get || typeof container.get !== 'function') {
-        throw new Error('Método container.get não encontrado');
-      }
+      await window.System.delete('http://localhost:3000/remoteEntry.js');
 
-      const factory = await container.get('./Component');
-      const reactModule = factory();
-
-      if (reactModule?.mount && this.reactContainer) {
-        this.unmountReact = reactModule.mount(
-          this.reactContainer.nativeElement
-        );
-      } else if (reactModule?.default?.mount) {
-        this.unmountReact = reactModule.default.mount(
-          this.reactContainer.nativeElement
-        );
-      } else if (reactModule?.default) {
-        this.unmountReact = reactModule.default(
-          this.reactContainer.nativeElement
-        );
-      } else {
-        console.error(
-          '❌ Estrutura do módulo:',
-          Object.keys(reactModule || {})
-        );
-        throw new Error('Função mount não encontrada no módulo React');
-      }
-
-      this.isLoading = false;
-    } catch (err) {
-      console.error('❌ Erro detalhado:', err);
-      this.error = err instanceof Error ? err.message : 'Erro desconhecido';
-      this.globalAvailable = window.mfeReact ? 'Sim' : 'Não';
-      this.isLoading = false;
+      await window.System.import('http://localhost:3000/remoteEntry.js');
+    } catch (err: any) {
+      console.error('❌ Erro ao carregar MFE:', err);
     }
   }
 
-  private loadScript(src: string): Promise<void> {
+  private loadScript(src: string): Promise<HTMLScriptElement> {
     return new Promise((resolve, reject) => {
       const existingScript = document.querySelector(`script[src="${src}"]`);
       if (existingScript) {
-        existingScript.remove();
+        resolve(existingScript as HTMLScriptElement);
+        return;
       }
 
       const script = document.createElement('script');
       script.src = src;
-      script.type = 'text/javascript';
-      script.crossOrigin = 'anonymous';
-
-      script.onload = () => {
-        resolve();
-      };
-
-      script.onerror = () => {
-        console.error('❌ Erro ao carregar script:', src);
+      script.async = true;
+      script.onload = () => resolve(script);
+      script.onerror = () =>
         reject(new Error(`Falha ao carregar script: ${src}`));
-      };
-
       document.head.appendChild(script);
     });
-  }
-
-  private waitForGlobal(globalName: string, timeout: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-
-      const check = () => {
-        if (window[globalName as keyof Window]) {
-          resolve();
-        } else if (Date.now() - startTime > timeout) {
-          console.error(`❌ Timeout aguardando ${globalName}`);
-          reject(new Error(`Timeout aguardando ${globalName} (${timeout}ms)`));
-        } else {
-          setTimeout(check, 100);
-        }
-      };
-
-      check();
-    });
-  }
-
-  retryLoad(): void {
-    if (this.reactContainer) {
-      this.reactContainer.nativeElement.innerHTML = '';
-    }
-    this.loadReactMfe();
   }
 }
